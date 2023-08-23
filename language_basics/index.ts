@@ -62,3 +62,10 @@ const shapeObj1: Shape = new ShapeClass("Lime", true);
 console.log(shapeObj1);
 
 printSectionEnd();
+
+printSectionHeader("Composing Types using union");
+
+/*
+  In Typescript, we can merge several built-in types to create compose types. We can
+  do it by using either union or generics. In this section union is demonstrated.
+*/

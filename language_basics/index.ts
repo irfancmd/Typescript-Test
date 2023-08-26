@@ -277,3 +277,15 @@ function printEmployeeInfo(employee: Employee): void {
 printEmployeeInfo(emp1);
 
 printSectionEnd();
+
+printSectionHeader("Literals as Types");
+
+/*
+  In typescript, literals can be used as type. The following funtion only accepts strings
+  that have the value "Hello World"
+*/
+function printHelloWorld(str: "Hello World"): void {
+  console.log(str);
+}
+
+printHelloWorld("Hello World");

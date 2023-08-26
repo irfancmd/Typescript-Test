@@ -16,8 +16,8 @@ printSectionHeader("Defining types using interfaes");
 /*
   Interface are one way (and recommended) way of
   defining custom types. Unlike most other OOP languages,
-  interfaces in TypeScript define specification/schema for
-  "objects", NOT "classes". So, interfaces can be used with or
+  interfaces in TypeScript can define specification/schema for
+  "objects", apart from "classes". So, interfaces can be used with or
   without classes.
 */
 interface Shape {
@@ -39,8 +39,7 @@ console.log(shape1);
 /*
   Now, we're declaring a class. note that this class follows
   the same structure that the interface had but there is no reference
-  to that interface whatsoever. This is because, interfaces are schemas
-  for "objects", NOT "classes".
+  to that interface whatsoever.
 */
 class ShapeClass {
   color: string;
@@ -61,14 +60,33 @@ const shapeObj1: Shape = new ShapeClass("Lime", true);
 
 console.log(shapeObj1);
 
+/*
+  Interfaces can also define schema for classes using
+  the "implements" keyword. A class can implement
+  multiple interfaces.
+*/
+class ShapeImpl implements Shape {
+  color: string;
+  isVisible: boolean;
+
+  constructor(color: string, isVisible: boolean) {
+    this.color = color;
+    this.isVisible = isVisible;
+  }
+}
+
+const shapeImplObj1 = new ShapeImpl("Indigo", true);
+console.log(shapeImplObj1);
+
 printSectionEnd();
 
-printSectionHeader("Composing Types using union");
+printSectionHeader("Composing Types using union and type aliases");
 
 /*
   In Typescript, we can merge several built-in types to compose new types. We can
   do it by using either union or generics. In this section union is demonstrated.
-  Unions are represented by the '|' symbol
+  Unions are represented by the '|' symbol. We create a type alias using the
+  "type" keyword while using uniion.
 */
 
 // The type "MyBoolean" can contain either "true" or "false" value
@@ -289,3 +307,182 @@ function printHelloWorld(str: "Hello World"): void {
 }
 
 printHelloWorld("Hello World");
+
+/*
+  Litarals typing behaves different for objects. Since, the values of any property of
+  an object can be chaged, Typescript cannot rely on thier values for literal type
+  checking so, they use the type of the properties for type validatoin instead.
+  However, we can use "as const" in object declation to let typescript know
+  that the values of that object's properties won't change in future, which will enable
+  literal type checking for that object using the values of its properties. This rule
+  applies for arrays as well.
+*/
+
+// Typescript will only check for peoperty types
+const temperature = {
+  value: 29,
+  unit: "Celsius",
+};
+
+// Note that we need to use "typeof" to use object literals
+function printTemperature(temp: typeof temperature): void {
+  console.log(`${temp.value} degree ${temp.unit}.`);
+}
+
+// We can use pass any object that matches the structure of "temperature"
+printTemperature({ value: 42, unit: "Fahrenheit" });
+
+/*
+  We're telling typescript that values of this object's properties won't change.
+  Here, the type of value will be 29 instead of number, and the type of unit will be
+  "Celcius" intead of string.
+*/
+const immutableTemperature = {
+  value: 29,
+  unit: "Celsius",
+} as const;
+
+function printImmutableTemperature(temp: typeof immutableTemperature): void {
+  console.log(`${temp.value} degree ${temp.unit}.`);
+}
+
+// These values must match the one defined in the literal
+printImmutableTemperature({ value: 29, unit: "Celsius" });
+
+printSectionEnd();
+
+printSectionHeader("Type assertions");
+
+/*
+  Even through Typescript can infer types itself, sometimes we may want to specify
+  which exact type to use in a certain situation. This can be particularly useful
+  for using javascript libraries or object in typescript. We can assert types for
+  them using the "as" keyword
+*/
+const pw1 = Math.pow(2, 2) as number;
+console.log(pw1);
+
+/*
+  Apart from using the "at" keyword, we can also use angle brackets
+  for type assertion
+*/
+const pw2 = <number>Math.pow(2, 3);
+console.log(pw2);
+
+/*
+  This feature is useful when dealing with literal types as shown below.
+*/
+
+// Typescript will infer this variable's type as string
+function setHttpMethod(method: "GET" | "POST"): void {
+  console.log(`HTTP method of this request has been set to ${method}`);
+}
+
+// The type of "method" will be string
+const request = {
+  method: "GET",
+};
+
+/*
+  Since the type of "method" is infered as string, we have to
+  tell typescript that this method has indeed the value "GET"
+*/
+setHttpMethod(request.method as "GET");
+
+printSectionEnd();
+
+printSectionHeader("Optional properties and Non-null Assertion Operator");
+
+/*
+  When defining object types, we can specify certain properties of that
+  object as optional
+*/
+interface Student {
+  studentName: string;
+  schoarship?: boolean; // The type of this will be inferred as boolean | undefined
+  extraCurricular?: {
+    title: string;
+  }[];
+}
+
+function printStudent(student: Student): void {
+  console.log(`Student Name: ${student.studentName}`);
+  console.log(`Student's Scholarship Status: ${student.schoarship}`);
+  /*
+    Since extraCurricular is optional, it could be undefined and typescript
+    won't allow us to access its property by default. However, we can use
+    non-null assertion operator '!' to tell typescript that we're sure
+    extraCurricular won't be null. Note that the non-null assertion operator
+    works for both null and undefined.
+  */
+  console.log(
+    `Student's First Extra-Curricular: ${student.extraCurricular![0].title}`
+  );
+}
+
+const student1: Student = {
+  studentName: "Student 1",
+  schoarship: true,
+  extraCurricular: [{ title: "Robotics" }],
+};
+
+printStudent(student1);
+
+printSectionEnd();
+
+printSectionHeader("Extending Interfaces");
+
+/*
+  One interface can extend from another.
+*/
+
+interface Fruit {
+  fruitName: string;
+}
+
+interface Vegetable extends Fruit {
+  color: string;
+}
+
+function printFruit(fruit: Fruit): void {
+  console.log(fruit);
+}
+
+const vegatable1: Vegetable = {
+  fruitName: "Tomato",
+  color: "red",
+};
+
+/*
+  Note that we can also pass Vegetable in printFruit as a subset
+  of Vegetable's property satisfies the Fruit interface, since vegetable
+  is indeed an extension of Fruit.
+*/
+
+printFruit(vegatable1);
+
+/*
+  Apart from extension, we can also add new property to an interface after
+  its initial declaration which is one of the differences between interfaces
+  and type aliases (the keyword "type"). Unlike interfaces, object types created
+  using type aliases cannot be modified after declaration. It's a good practice to
+  use interface by default unless we need to use "type" for some specific reason,
+  since interfaces are easier to extend.
+*/
+interface Soldier {
+  soldierName: string;
+}
+
+// We're adding another property to the Soldier interface
+interface Soldier {
+  soldierRank: string;
+}
+
+const soldier1: Soldier = {
+  soldierName: "John Doe",
+  soldierRank: "Major",
+};
+
+console.log(soldier1);
+
+printSectionEnd();

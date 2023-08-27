@@ -1,4 +1,4 @@
-import { printSectionHeader, printSectionEnd } from "./utils";
+import { printSectionHeader, printSectionEnd } from "./utils.js";
 
 printSectionHeader("Declaring Variables and Constants");
 /*
@@ -484,5 +484,58 @@ const soldier1: Soldier = {
 };
 
 console.log(soldier1);
+
+printSectionEnd();
+
+printSectionHeader("Functions with Properties");
+
+/*
+  In Javascript, we can add properties to a function or callable object.
+  To do this in Typescript, we first have to define the structure of that
+  callable in a type.
+*/
+interface AddFunc {
+  description: string;
+  // Note that we're not using arrow notation if we want the object ITSELF to be callable
+  (num1: number, num2: number): void;
+}
+
+const AddFuncImpl: AddFunc = (num1: number, num2: number) => {
+  console.log(num1 + num2);
+};
+
+AddFuncImpl.description = "Adds two number";
+
+AddFuncImpl(5, 7);
+
+printSectionEnd();
+
+printSectionHeader("Function Overloading");
+
+/*
+  To overload a function in Typescript, we have to write two type of function
+  declaration:
+  1. The overloaded declarations
+  2. The implementation declaration
+  So, a function can have one or more overloaded declaration and it MUST have
+  only one implementation declaration. That implemenation declaration has to cover
+  all cases of overloaded definitions. An example this is shown below:
+*/
+function printMultiply(op1: number, op2: number): void; // Overload definition 1
+function printMultiply(op1: string, op2: number): void; // Overload definition 2
+function printMultiply(op1: number | string, op2: number): void {
+  // Implementation definition
+  if (typeof op1 === "number") {
+    // Because of "narrowing", Typescript knows that op1 is a number inside this block
+    console.log(op1 * op2);
+  } else {
+    // Similarly, Typescript knows that op2 is a string inside this  block
+    const multipliedString = new Array(op2).fill(op1).join("");
+    console.log(multipliedString);
+  }
+}
+
+printMultiply(5, 8);
+printMultiply("Apple", 5);
 
 printSectionEnd();

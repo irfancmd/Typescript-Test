@@ -539,3 +539,226 @@ printMultiply(5, 8);
 printMultiply("Apple", 5);
 
 printSectionEnd();
+
+printSectionHeader("Readonly Properties");
+
+/*
+  Reaonly properties of an object cannot be changed after initial assignment. If
+  a readonly property is an object, it cannot be re-assignmed but it's internal
+  properties can be modified.
+*/
+interface Player {
+  readonly playerName: string;
+  age: number;
+}
+
+const player1: Player = {
+  playerName: "Player One",
+  age: 25,
+};
+
+// This will cause error since playerName is readonly
+// player1.playerName = "Player One Modified"
+
+// Non-readonly property age can be modified as usual
+player1.age = 26;
+
+printSectionEnd();
+
+printSectionHeader("Index Signature");
+
+/*
+  Sometimes we want to access properties of an object in a key-value pair, which Javascr4ipt allows.
+  However, when using this feature in Typescript, we may want to specify the valid types of keys
+  and associated values. We can do so by using index signatures
+*/
+
+interface FruitBasket {
+  /*
+    Note that the name and type of the "key" goes inside square brackets. We can read this statement like:
+    "If we use a key of type 'string', we expect a value of type 'number'"
+  */
+  [fruitName: string]: number;
+}
+
+const fruitBasket: FruitBasket = {
+  Apple: 3,
+  Orange: 5,
+  Peach: 7,
+};
+
+function printFruitBasket(basket: FruitBasket) {
+  for (let fruitName in basket) {
+    // Note that typescript was able to infer that fruitQuantity should be a number because we used index signature.
+    const fruitQuantity = basket[fruitName];
+    console.log(fruitQuantity);
+  }
+}
+
+printFruitBasket(fruitBasket);
+
+printSectionEnd();
+
+printSectionHeader("Destructuring Objects");
+
+/*
+  We can use object desctucturing feature of Javascript in TypeScript in the following way:
+*/
+const product1 = {
+  title: "T-Shit",
+  amount: 29.5,
+  isAvailable: true,
+};
+
+// Note that the type association goes AFTER writing the usual destructurintg syntax
+function printProductInfo({
+  title,
+  amount,
+  isAvailable,
+}: {
+  title: string;
+  amount: number;
+  isAvailable: boolean;
+}) {
+  console.log(`Product Name: ${title}`);
+  console.log(`Product Amount: ${amount}`);
+  console.log(`Product Available: ${isAvailable}`);
+}
+
+printProductInfo(product1);
+
+printSectionEnd();
+
+printSectionHeader("Excess Property Checks");
+
+/*
+  In an earlier section, we saw that Typescript only requires a "subset"
+  of an object's properties to satisfy a type. That is however, not the case
+  for object "literals". When it comes to literals, typescript does excess
+  property checking.
+*/
+
+/*
+  This will thorw error even through it should've satisfy the Product Type.
+  This is because, for object literals, Typescript require EXACT match of properties with
+  the corresponding type.
+*/
+// printProductInfo({ title: "Hat", amount: 25.5, isAvailable: true, discountPercentage: 10 })
+
+// This is valid since it follows the exact specification of the type
+printProductInfo({ title: "Hat", amount: 25.5, isAvailable: true });
+
+printSectionEnd();
+
+printSectionHeader("Readonly Arrays");
+
+/*
+  We can specify an array to be readonly in Typescript using the typescript built-in type
+  ReadOnlyArray<T> or the shorthand like "readonly string[]". We can use them for many cases like
+  making sure an array cananot be changed inside a function.
+*/
+function iterateAndPringArray<T>(arr: ReadonlyArray<T>): void {
+  for (let i = 0; i < arr.length; i++) {
+    console.log(arr[i]);
+
+    // Note that we cannot accidentaly modify the array content
+    // arr[i] = 6;
+  }
+}
+
+iterateAndPringArray<number>([1, 2, 3, 7, 2, 3, 8]);
+
+printSectionEnd();
+
+printSectionHeader("Tuples");
+
+/*
+  Tuples are a type of array fixed lengh and fixed type for each position
+*/
+type Point = [number, number];
+
+const point: Point = [2, 3];
+
+console.log(point);
+
+printSectionEnd();
+
+printSectionHeader("Type Intersection");
+
+/*
+  In an earlier section, we saw how we can compose types by using union. We can
+  also compose type using intersection where a child type can have all the properties
+  of its parent types. This is similiar to extending an interface, however it differens
+  in terms of handling overlapping properties of parents.
+*/
+type Circle = {
+  radius: number;
+};
+
+type Colorful = {
+  color: string;
+};
+
+type ColorfulCircle = Circle & Colorful;
+
+const colorfulCircle1: ColorfulCircle = {
+  radius: 5,
+  color: "blue",
+};
+
+console.log(colorfulCircle1);
+
+printSectionEnd();
+
+printSectionHeader("The keyof Operator");
+
+/*
+  We can use Typescript's keyof operator to extracting an union type from
+  an existig type's property keys
+*/
+
+/*
+  Objects of this type will store co-ordinate values against their specific dimension key.
+*/
+type Point3d = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+// This statement is actually says, type Point3dUnionType = "x" | "y" | "z";
+type Point3dKeyType = keyof Point3d;
+
+function printPoint3dCoCord(point: Point3d, dimensionIndex: Point3dKeyType) {
+  console.log(point[dimensionIndex]);
+}
+
+const p3d1 = {
+  x: 1,
+  y: 2,
+  z: 3,
+};
+
+printPoint3dCoCord(p3d1, "y");
+
+printSectionEnd();
+
+printSectionHeader("The typeOf Operator");
+
+/*
+  The typeOf operator allows us to get the type of "value" objects. It can be useful in
+  many cases like using predefined type ReturnedType<T> that can get the type of return value
+  of a function
+*/
+
+function generateNumber(): number {
+  return 8;
+}
+
+/*
+  Since generateNumber is a value object (functions are object in JS), we have to use typeof
+  operator to get its type
+*/
+type generateNumberReturnType = ReturnType<typeof generateNumber>;
+
+printSectionEnd();

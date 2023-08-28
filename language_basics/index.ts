@@ -762,3 +762,151 @@ function generateNumber(): number {
 type generateNumberReturnType = ReturnType<typeof generateNumber>;
 
 printSectionEnd();
+
+printSectionHeader("Contitional Type and Type Indexing");
+
+/*
+  In Typescript, we can set types based on conditions which is particularly useful
+  while using generics. We can also use indexing on object types to get the type
+  of any of their property.
+*/
+
+/*
+  Here, we're saying that if the generic type T has a message property, then type of
+  MessageOf<T> will be whatever type the "message" property has. If there is no message
+  property, the type of MessageOf<T> will be assigned as "never" which will make sure
+  that nobody can assign an instance of this type to anything.
+*/
+type MessageOf<T> = T extends { message: unknown } ? T["message"] : never;
+
+const Email = {
+  message: "Hello",
+};
+
+// EmailMessageType will be infered as string
+type EmailMessageType = MessageOf<typeof Email>;
+
+const CodedMessage = {
+  message: 123,
+};
+
+// CodedMessageType will be infered as number
+type CodedMessageType = MessageOf<typeof CodedMessage>;
+
+printSectionEnd();
+
+printSectionHeader("The 'infer' keyword");
+
+/*
+  Sometimes, we may want to extract the type of array elements.
+*/
+
+/*
+  This type represents a Flatten state of an array. If the given type
+  T is indeed an array, FlattenArray<T> will represent the type of
+  whatever gets returned when we try to index "T" using a number. For intance
+  it will be string for a string[]. If type T is not an array, FlattenArray<T>
+  will represent the type of T instead.
+*/
+type FlattenArray<T> = T extends any[] ? T[number] : T;
+
+// FlattenStringArray will be infered as "string"
+type FlattenStringArray = FlattenArray<string[]>;
+
+/*
+  While the above approach gets the job done, it can be done in an easier way if we
+  use the "infer" keyword. The infer keyword tells typescript to infer the type itself
+  based on context. So if we use infer with Array<T>, Typescript will recognize that
+  we are trying to infer the type of array elements
+*/
+
+// Note that we're using another generif type ItemType for holding the type of array elements
+type FlattenArrayUpdated<T> = T extends Array<infer ItemType> ? ItemType : T;
+
+// FlattenStringArrayUpdated will be infered as "string"
+type FlattenStringArrayUpdated = FlattenArrayUpdated<string[]>;
+
+printSectionEnd();
+
+printSectionHeader("Distributed Conditional Type");
+
+/*
+  When using contiidion in generic types, If we pass a union type as the generic type,
+  Typescript will make the generic type distributive
+*/
+
+// Before moving in to conditions, let's look at this simple scenario
+type ToArray<T> = T[];
+
+// StringOrNumberArray is of type (string | number)[] as expected
+type StringOrNumberArray = ToArray<string | number>;
+
+// Ok, now let's add a condition in the generic type. This condition doesn't make much sense,
+// sense we're using it for demonstration.
+type ToArrayDistributive<T> = T extends any ? T[] : never;
+
+/*
+  Note that StringOrNumberArrayDistributive is of type string[] | number[], since the
+  generic has become distributive.
+*/
+type StringOrNumberArrayDistributive = ToArrayDistributive<string | number>;
+
+/*
+  If we don't typescript to make the generic distributive, we can wrap surround each side of
+  "extends" with []
+*/
+type ToArrayNonDistributive<T> = [T] extends [any] ? T[] : never;
+
+/*
+  StringOrNumberArrayNonDistributive is of type (string | number)[] since the generic type
+  is not distributive anymore.
+*/
+type StringOrNumberArrayNonDistributive = ToArrayNonDistributive<
+  string | number
+>;
+
+printSectionEnd();
+
+printSectionHeader("Mapped Types");
+
+/*
+  Mapped types allow us to create a new type by modifying the property typs of
+  and existing object type.
+*/
+
+// We're converting all property type of Person to boolean
+type BoolanPerson = {
+  [Propperty in keyof Person]: boolean;
+};
+
+/*
+  We can also add/remove property modifiers like "readonly" and "?" using mapped types.
+  prefixing a modifer with "-" or will remove that modifier. Prefixing the modifer with
+  "+" or just writing the modifer will add it.
+*/
+type ReadOnlyPerson = {
+  readonly [Propperty in keyof Person]: boolean;
+};
+
+// Now, let's remove the readonly property
+type NonReadOnlyPerson = {
+  -readonly [Propperty in keyof Person]: boolean;
+};
+
+printSectionEnd();
+
+printSectionHeader("Templace Literal Types");
+
+/*
+  Javascript supports template string literals, using
+  `${}` syntax, and Typescript extends it further by allowing us
+  to create template literal for types.
+*/
+
+type PageTitle = "Home" | "About" | "Contact";
+type Language = "EN" | "DE" | "BN";
+
+// Typescript will cross multiply the elements of the above unions for generating this type.
+type LocalizedPageTitle = `${PageTitle}_${Language}`;
+
+printSectionEnd();

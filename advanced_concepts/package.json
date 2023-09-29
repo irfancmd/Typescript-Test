@@ -6,12 +6,13 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "npx tsc *.ts --target es2016 --outdir ./dist"
+    "build": "npx tsc *.ts --target es2016 --types node --outdir ./dist"
   },
   "author": "Irfan",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.6.3",
+    "@types/node": "^20.7.2",
+    "remove": "^0.1.5",
     "typescript": "^5.2.2"
   }
 }
